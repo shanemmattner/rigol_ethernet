@@ -9,12 +9,12 @@ import sqlite3 as sql
 i2c = busio.I2C(board.SCL, board.SDA)
 ads = ADS.ADS1015(i2c)
 
-ads.mode = Mode.CONTINUOUS
 conn = sql.connect('i2c_data.db')
 
 t_ms = 0
 
 while(1):
     chan = AnalogIn(ads, ADS.P0)
-    print(chan.value)
+    current = (chan.voltage - 1.65) /.055
+    print(current)
     sleep(0.001)
