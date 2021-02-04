@@ -4,6 +4,7 @@ import pandas as pd
 import ds1054z_cp as dscp
 import sqlite3 as sql
 import time
+import os
 import RPi.GPIO as GPIO
 
 lock_pin = 4
@@ -15,15 +16,26 @@ chan1_label = 'FLUKE_CURRENT'
 chan2_label = 'V_Triac_DS'
 chan3_lbael = 'ANA_CURRENT'
 
-def set_trig(t_scope):
+def set_trig_inrush(t_scope):
     t_scope.write(':TRIG:EDGE:SOUR '+ trig_chan)
     t_scope.write(':TRIG:EDGE:SLOP POS')
     t_scope.write(':TRIG:EDGE:LEV 1')
+    t_scope.write(':ACQ:TYPE HRES')
+    print(str(t_scope.query(':ACQ:TYPE?')))
     #set time offset to 0ms
-    t_scope.timebase_offset = 0
-    t_scope.timebase_scale = 0.02
-    print(str(t_scope.timebase_scale))
+    t_scope.timebase_offset = 0.02
+    t_scope.timebase_scale = 0.01
     
+def set_trig_stall(t_scope):
+    t_scope.write(':TRIG:EDGE:SOUR '+ trig_chan)
+    t_scope.write(':TRIG:EDGE:SLOP POS')
+    t_scope.write(':TRIG:EDGE:LEV 1')
+    t_scope.write(':ACQ:TYPE?')
+    t_scope.write(':ACQ:TYPE HRES')
+
+    #set time offset to 0ms
+    t_scope.timebase_offset = 0.02
+    t_scope.timebase_scale = 0.01
 
 def get_data(t_scope):
 
@@ -52,7 +64,7 @@ def GPIO_setup():
 def stall_lock_test():
     scope = dscp.DS1054Z('169.254.145.221')
     scope.stop()
-    set_trig(scope)
+    set_trig_stall(scope)
     
     time.sleep(1)
     scope.single()
@@ -79,7 +91,7 @@ def stall_unlock_test():
     scope = dscp.DS1054Z('169.254.145.221')
     scope.stop()
 
-    set_trig(scope)
+    set_trig_stall(scope)
 
     #scope.run()
     time.sleep(1)
@@ -109,7 +121,7 @@ def inrush_lock_test():
    
     scope = dscp.DS1054Z('169.254.145.221')
     scope.stop()
-    set_trig(scope)
+    set_trig_inrush(scope)
 
     scope.single()
     time.sleep(1)
@@ -134,7 +146,7 @@ def inrush_unlock_test():
    
     scope = dscp.DS1054Z('169.254.145.221')
     scope.stop()
-    set_trig(scope)
+    set_trig_inrush(scope)
 
     scope.single()
     time.sleep(1)
@@ -160,18 +172,21 @@ def main():
 
     print("setting up gpio")
     GPIO_setup()
+
+    clear = lambda: os.system('clear')
+    clear()
     print("cycle testing")
     
     #inrush_lock_test()
-    for x in range(2):
+    for x in range(1):
         inrush_lock_test()
-        time.sleep(3)
+        time.sleep(2)
         stall_lock_test()
-        time.sleep(3)
+        time.sleep(2)
         inrush_unlock_test()
-        time.sleep(3)
+        time.sleep(2)
         stall_unlock_test()
-
+        time.sleep(2)
 
 
 if __name__ == "__main__":
