@@ -181,26 +181,23 @@ def check_run_bit():
         return 0
 
 #from ds1054z import DS1054Z 
-def cycle_test(t_time):
+def cycle_test():
     print("Cycle testing...")
 
-
+    #time.sleep(2)
     #inrush_lock_test()
-    #for x in range(1):
-    #    inrush_lock_test()
-    #    time.sleep(2)
-    #    stall_lock_test()
-    #    time.sleep(2)
-    #    inrush_unlock_test()
-    #    time.sleep(2)
-    #    stall_unlock_test()
-    #    time.sleep(2)
+    #time.sleep(2)
+    #stall_lock_test()
+    #time.sleep(2)
+    #inrush_unlock_test()
+    #time.sleep(2)
+    #stall_unlock_test()
+    #time.sleep(2)
 
 
 
 ######################   RUNNING CODE    ################
 
-t_timer = 0
 print("setting up gpio")
 GPIO_setup()
 
@@ -211,6 +208,5 @@ f.close()
     
 while True:
     if check_run_bit()==1:
-        cycle_test(t_timer)
-        t_timer = t_timer + 1
-    time.sleep(1)
+        cycle_test()
+        time.sleep(1)
