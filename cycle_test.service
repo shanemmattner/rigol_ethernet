@@ -1,0 +1,12 @@
+#https://www.raspberrypi-spy.co.uk/2015/10/how-to-autorun-a-python-script-on-boot-using-systemd/
+[Unit]
+Description=Cycle Test Service
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /home/pi/rigol_ethernet/cycle_test.py 
+WorkingDirectory=/home/pi/rigol_ethernet
+User=pi
+[Install]
+WantedBy=multi-user.target
