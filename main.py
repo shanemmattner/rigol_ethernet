@@ -166,28 +166,51 @@ def inrush_unlock_test():
     df.to_sql('unlock_inrush', conn, if_exists='append')
     conn.close()
 
-    
+   
+def check_run_bit():
+    f = open('run_testing.txt','r')
+    msg = f.read()
+    f.close()
+    run = int(msg[0])
+    print("run bit: " + str(run)) 
+    if run == 1:
+        print("running")
+        return 1
+    else:
+        print('not running')
+        return 0
+
 #from ds1054z import DS1054Z 
-def main():
+def cycle_test(t_time):
+    print("Cycle testing...")
 
-    print("setting up gpio")
-    GPIO_setup()
 
-    clear = lambda: os.system('clear')
-    clear()
-    print("cycle testing")
-    
     #inrush_lock_test()
-    for x in range(1):
-        inrush_lock_test()
-        time.sleep(2)
-        stall_lock_test()
-        time.sleep(2)
-        inrush_unlock_test()
-        time.sleep(2)
-        stall_unlock_test()
-        time.sleep(2)
+    #for x in range(1):
+    #    inrush_lock_test()
+    #    time.sleep(2)
+    #    stall_lock_test()
+    #    time.sleep(2)
+    #    inrush_unlock_test()
+    #    time.sleep(2)
+    #    stall_unlock_test()
+    #    time.sleep(2)
 
 
-if __name__ == "__main__":
-    main()
+
+######################   RUNNING CODE    ################
+
+t_timer = 0
+print("setting up gpio")
+GPIO_setup()
+
+#set run bit to 0 on start up of this script
+f = open('run_testing.txt', 'w')
+f.write('0')
+f.close()
+    
+while True:
+    if check_run_bit()==1:
+        cycle_test(t_timer)
+        t_timer = t_timer + 1
+    time.sleep(1)
