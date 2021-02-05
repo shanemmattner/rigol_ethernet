@@ -207,6 +207,6 @@ f.write('0')
 f.close()
     
 while True:
+    time.sleep(1)
     if check_run_bit()==1:
         cycle_test()
-        time.sleep(1)
