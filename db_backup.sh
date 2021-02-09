@@ -13,7 +13,7 @@ then
 	echo "0" > run_testing.txt
 	sleep 5
 	mount -t vfat -o rw /dev/sda /home/pi/rigol_ethernet/usb
-	now=$(date +"%H-%M-%m-%d-%Y")
+	now=$(date +"%d-%b-%Y-%H-%M")
 	cp /home/pi/rigol_ethernet/g3v2_motor_drive_signals.db /home/pi/rigol_ethernet/usb/g3v2_motor_drive_signals_$now.db
 	rm /home/pi/rigol_ethernet/g3v2_motor_drive_signals.db
 	if [ $t_running == 1 ]
