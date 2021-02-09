@@ -15,7 +15,7 @@ then
 	mount -t vfat -o rw /dev/sda /home/pi/rigol_ethernet/usb
 	now=$(date +"%H-%M-%m-%d-%Y")
 	cp /home/pi/rigol_ethernet/g3v2_motor_drive_signals.db /home/pi/rigol_ethernet/usb/g3v2_motor_drive_signals_$now.db
-	#rm /home/pi/rigol_ethernet/g3v2_motor_drive_signals.db
+	rm /home/pi/rigol_ethernet/g3v2_motor_drive_signals.db
 	if [ $t_running == 1 ]
 	then
 		echo "1" > run_testing.txt

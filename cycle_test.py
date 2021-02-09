@@ -10,11 +10,29 @@ import RPi.GPIO as GPIO
 lock_pin = 4
 unlock_pin = 17
 trig_pin = 27
-trig_chan = 'CHAN4'
+trig_chan = 'CHAN1'
 
-chan1_label = 'FLUKE_CURRENT'
-chan2_label = 'V_Triac_DS'
-chan3_lbael = 'ANA_CURRENT'
+timebase_offset = 0.02
+timebase_scale = 0.01
+
+chan3_label = 'FLUKE_CURRENT'
+chan4_label = 'V_Triac_DS'
+chan2_lbael = 'ANA_CURRENT'
+
+
+def log_to_db(df, table):
+    try:
+      conn = sql.connect('g3v2_motor_drive_signals.db')
+      print("connected")
+    except Exception as e:
+        print(e)
+
+        
+    df.to_sql(table, conn, if_exists='append')
+    conn.close()
+
+
+
 
 def set_trig_inrush(t_scope):
     t_scope.write(':TRIG:EDGE:SOUR '+ trig_chan)
@@ -23,8 +41,8 @@ def set_trig_inrush(t_scope):
     t_scope.write(':ACQ:TYPE HRES')
     print(str(t_scope.query(':ACQ:TYPE?')))
     #set time offset to 0ms
-    t_scope.timebase_offset = 0.02
-    t_scope.timebase_scale = 0.01
+    t_scope.timebase_offset = timebase_offset
+    t_scope.timebase_scale = timebase_scale
     
 def set_trig_stall(t_scope):
     t_scope.write(':TRIG:EDGE:SOUR '+ trig_chan)
@@ -34,8 +52,9 @@ def set_trig_stall(t_scope):
     t_scope.write(':ACQ:TYPE HRES')
 
     #set time offset to 0ms
-    t_scope.timebase_offset = 0.02
-    t_scope.timebase_scale = 0.01
+    t_scope.timebase_offset = timebase_offset
+    t_scope.timebase_scale = timebase_scale
+
 
 def get_data(t_scope):
 
@@ -73,17 +92,14 @@ def stall_lock_test():
     time.sleep(0.5)
     GPIO.output(trig_pin, GPIO.HIGH)
     GPIO.output(lock_pin, GPIO.LOW)
-    while(scope.running):
-        print("scope still running, lock stall")
+    time.sleep(1)
     scope.stop()
     GPIO.output(trig_pin, GPIO.LOW)
 
-    df = get_data(scope)
-    print(df)
-    conn = sql.connect('g3v2_motor_drive_signals.db')
-    df.to_sql('lock_stall', conn, if_exists='append')
-    conn.close()
-
+    signal_df = get_data(scope)
+    print(signal_df)
+    log_to_db(signal_df,'lock_stall')
+    
 
 
 #Need to set the oscilloscope to trigger on the output going low
@@ -101,8 +117,7 @@ def stall_unlock_test():
     time.sleep(0.5)
     GPIO.output(trig_pin, GPIO.HIGH)
     GPIO.output(unlock_pin, GPIO.LOW)
-    while(scope.running):
-        print("scope still running, unlock stall")
+    time.sleep(1)
     scope.stop()
     GPIO.output(trig_pin, GPIO.LOW)
     
@@ -110,11 +125,9 @@ def stall_unlock_test():
     df = get_data(scope)
     print(df)
 
-
-    conn = sql.connect('g3v2_motor_drive_signals.db')
-    df.to_sql('unlock_stall', conn, if_exists='append')
-    conn.close()
-
+    signal_df = get_data(scope)
+    print(signal_df)
+    log_to_db(signal_df,'unlock_stall')
 
 
 def inrush_lock_test():
@@ -137,9 +150,9 @@ def inrush_lock_test():
     print(df)
 
 
-    conn = sql.connect('g3v2_motor_drive_signals.db')
-    df.to_sql('lock_inrush', conn, if_exists='append')
-    conn.close()
+    signal_df = get_data(scope)
+    print(signal_df)
+    log_to_db(signal_df,'lock_inrush')
 
 
 def inrush_unlock_test():
@@ -162,43 +175,46 @@ def inrush_unlock_test():
     df = get_data(scope)
     print(df)
 
-    conn = sql.connect('g3v2_motor_drive_signals.db')
-    df.to_sql('unlock_inrush', conn, if_exists='append')
-    conn.close()
+    signal_df = get_data(scope)
+    print(signal_df)
+    log_to_db(signal_df,'unlock_inrush')
 
    
 def check_run_bit():
     f = open('run_testing.txt','r')
     msg = f.read()
     f.close()
-    run = int(msg[0])
-    print("run bit: " + str(run)) 
+    #having intermittent problems with errors for string index
+    try:
+        run = int(msg[0])
+    except:
+        f = open('run_testing.txt', 'w')
+        f.write('0')
+        f.close()
+        run = 0
     if run == 1:
-        print("running")
         return 1
     else:
-        print('not running')
         return 0
 
 #from ds1054z import DS1054Z 
 def cycle_test():
     print("Cycle testing...")
 
-    #time.sleep(2)
-    #inrush_lock_test()
-    #time.sleep(2)
-    #stall_lock_test()
-    #time.sleep(2)
-    #inrush_unlock_test()
-    #time.sleep(2)
-    #stall_unlock_test()
-    #time.sleep(2)
+    time.sleep(2)
+    inrush_lock_test()
+    time.sleep(2)
+    stall_lock_test()
+    time.sleep(2)
+    inrush_unlock_test()
+    time.sleep(2)
+    stall_unlock_test()
+    time.sleep(2)
 
 
 
 ######################   RUNNING CODE    ################
 
-print("setting up gpio")
 GPIO_setup()
 
 #set run bit to 0 on start up of this script
