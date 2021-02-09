@@ -59,7 +59,14 @@ def update_metrics(n):
     f = open('run_testing.txt','r')
     msg = f.read()
     f.close()
-    run = int(msg[0])
+    try:
+        run = int(msg[0])
+    except:
+        f = open('run_testing.txt', 'w')
+        f.write('0')
+        f.close()
+        run = 0
+
     if run==1:
         return "GEN3 V2 Cycle Test:  RUNNING"
     else:

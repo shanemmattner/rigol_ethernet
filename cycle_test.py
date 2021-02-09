@@ -22,17 +22,15 @@ chan2_lbael = 'ANA_CURRENT'
 
 def log_to_db(df, table):
     try:
-      conn = sql.connect('g3v2_motor_drive_signals.db')
-      print("connected")
+        conn = sql.connect('g3v2_motor_drive_signals.db')
+        print("connected")
+        df.to_sql(table, conn, if_exists='append')
+        conn.close()
+
     except Exception as e:
         print(e)
 
         
-    df.to_sql(table, conn, if_exists='append')
-    conn.close()
-
-
-
 
 def set_trig_inrush(t_scope):
     t_scope.write(':TRIG:EDGE:SOUR '+ trig_chan)
