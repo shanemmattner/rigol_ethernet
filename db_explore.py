@@ -11,9 +11,11 @@ import plotly.graph_objs as go
 import plotly.io as pio
 pio.renderers.default='browser'
 
-
+#for motor current ic
 volt_amp_ratio = 0.055
 
+#function that takes a table and returns a list containing
+#  a df with the single test data
 def split_into_tests(table_name):    
     conn = sqlite3.connect("g3v2_motor_drive_signals.db")
     t_query = "SELECT * from " + str(table_name)
@@ -30,39 +32,45 @@ def split_into_tests(table_name):
     
     return df_list
 
+def make_traces(trace_buff, df_table, num_test):
+    for x in range(num_test):
+        df_plot = df_table[x]
+        for col in df_plot:
+            if ('TIME' in col) or ('index' in col):
+                pass 
+            elif ('CHAN1' in col):
+                df_plot[col]  = (df_plot[col]-3.5) * (-1)
+                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name='Current(fluke)',opacity=0.8, yaxis='y1'))
+            elif ('CHAN2' in col):
+                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name='V_DS',opacity=0.8, yaxis='y2'))
+            elif ('CHAN3' in col):
+                df_plot[col] = df_plot[col].apply(lambda x: (x - 1.65) /volt_amp_ratio)
+                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name='Current(ADC)' ,opacity=0.8, yaxis='y1'))
+            elif ('CHAN4' in col):
+                df_plot[col] = df_plot[col] * 3
+                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name='Trigger',opacity=0.8, yaxis='y1'))
+            else:
+                pass 
 
+    return trace_buff
 
-conn = sqlite3.connect("g3v2_motor_drive_signals.db")
+conn = sqlite3.connect("g3v2_motor_drive_signals_09-Feb-2021-10-30.db")
 t_query = "SELECT sql from sqlite_master where type = 'table'"
 df = pd.read_sql_query(t_query, conn)
 conn.close()
-print(df)
+
+
+
 
 lock_inrush = split_into_tests('lock_inrush')
 # lock_stall = split_into_tests('lock_stall')
-# unlock_inrush = split_into_tests('unlock_inrush')
+unlock_inrush = split_into_tests('unlock_inrush')
 # unlock_stall = split_into_tests('unlock_stall')
 
-# fig = lock_inrush[0].plot()
-# fig.show()
-
+#make traces from all the data
 trace_buf = []
-
-for x in range(len(lock_inrush)):
-    df_plot = lock_inrush[x]
-    for col in df_plot:
-        if ('TIME' in col) or ('index' in col):
-            pass 
-         # elif ('CHAN1' in col):
-         #    df_plot[col] = df_plot[col].apply(lambda x: (x *5))
-         #    trace_buf.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name=str(col),opacity=0.8, yaxis='y1'))
-        elif ('CHAN2' in col):
-            trace_buf.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name=str(col),opacity=0.8, yaxis='y2'))
-        elif ('CHAN3' in col):
-            df_plot[col] = df_plot[col].apply(lambda x: (x - 1.65) /0.055)
-            trace_buf.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name=str(col),opacity=0.8, yaxis='y1'))
-        else:
-            pass
+make_traces(trace_buf, lock_inrush,1)
+make_traces(trace_buf, unlock_inrush,1)
 
 
 fig =  go.Figure(data=trace_buf[:])
