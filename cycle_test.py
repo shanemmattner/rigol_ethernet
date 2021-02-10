@@ -14,10 +14,13 @@ trig_chan = 'CHAN1'
 
 timebase_offset = 0.02
 timebase_scale = 0.01
+timebase_offset_inrush = 0.05
 
+chan1_label = 'Trigger'
+chan2_lbael = 'ANA_CURRENT'
 chan3_label = 'FLUKE_CURRENT'
 chan4_label = 'V_Triac_DS'
-chan2_lbael = 'ANA_CURRENT'
+
 
 
 def log_to_db(df, table):
@@ -39,7 +42,7 @@ def set_trig_inrush(t_scope):
     t_scope.write(':ACQ:TYPE HRES')
     print(str(t_scope.query(':ACQ:TYPE?')))
     #set time offset to 0ms
-    t_scope.timebase_offset = timebase_offset
+    t_scope.timebase_offset = timebase_offset_inrush
     t_scope.timebase_scale = timebase_scale
     
 def set_trig_stall(t_scope):
@@ -59,13 +62,13 @@ def get_data(t_scope):
     time_data = t_scope.waveform_time_values
     df = pd.DataFrame(time_data, columns = ['TIME'])
     chan4_data = t_scope.get_waveform_samples('CHAN4')
-    df.insert(1, 'CHAN4', chan4_data)
+    df.insert(1, chan4_label, chan4_data)
     chan3_data = t_scope.get_waveform_samples('CHAN3')
-    df.insert(1, 'CHAN3', chan3_data)
+    df.insert(1, chan3_label, chan3_data)
     chan2_data = t_scope.get_waveform_samples('CHAN2')
-    df.insert(1, 'CHAN2', chan2_data)
+    df.insert(1, chan2_lbael, chan2_data)
     chan1_data = t_scope.get_waveform_samples('CHAN1')
-    df.insert(1, 'CHAN1', chan1_data)
+    df.insert(1, chan1_label, chan1_data)
 
     return df
 
@@ -199,15 +202,15 @@ def check_run_bit():
 def cycle_test():
     print("Cycle testing...")
 
-    time.sleep(2)
+    time.sleep(5)
     inrush_lock_test()
-    time.sleep(2)
+    time.sleep(5)
     stall_lock_test()
-    time.sleep(2)
+    time.sleep(5)
     inrush_unlock_test()
-    time.sleep(2)
+    time.sleep(5)
     stall_unlock_test()
-    time.sleep(2)
+    time.sleep(5)
 
 
 

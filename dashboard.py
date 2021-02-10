@@ -13,8 +13,8 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
     html.Div(id='status_indicator',
         children='GEN3 V2 cycle testing', style={'fontSize':50}),
-    html.Button('RUN', id='btn_run', n_clicks=0, style={'padding':'100px 100px', 'fontSize':50}),
-    html.Button('STOP', id='btn_stop', n_clicks=0, style={'padding':'100px 100px', 'fontSize':50}),
+    html.Button('RUN', id='btn_run', n_clicks=0, style={'padding':'200px 200px', 'fontSize':50}),
+    html.Button('STOP', id='btn_stop', n_clicks=0, style={'padding':'200px 200px', 'fontSize':50}),
     dcc.Interval(
         id='interval-component',
         interval=1*1000, # in milliseconds
