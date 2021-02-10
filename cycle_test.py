@@ -202,15 +202,15 @@ def check_run_bit():
 def cycle_test():
     print("Cycle testing...")
 
-    time.sleep(3)
+    time.sleep(5)
     inrush_lock_test()
-    time.sleep(3)
+    time.sleep(5)
     stall_lock_test()
-    time.sleep(3)
+    time.sleep(5)
     inrush_unlock_test()
-    time.sleep(3)
+    time.sleep(5)
     stall_unlock_test()
-    time.sleep(3)
+    time.sleep(5)
 
 
 
