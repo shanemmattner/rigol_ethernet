@@ -38,23 +38,23 @@ def make_traces(trace_buff, df_table, num_test):
         for col in df_plot:
             if ('TIME' in col) or ('index' in col):
                 pass 
-            elif ('CHAN1' in col):
-                df_plot[col]  = (df_plot[col]-3.5) * (-1)
-                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name='Current(fluke)',opacity=0.8, yaxis='y1'))
-            elif ('CHAN2' in col):
-                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name='V_DS',opacity=0.8, yaxis='y2'))
-            elif ('CHAN3' in col):
-                df_plot[col] = df_plot[col].apply(lambda x: (x - 1.65) /volt_amp_ratio)
-                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name='Current(ADC)' ,opacity=0.8, yaxis='y1'))
-            elif ('CHAN4' in col):
+            elif ('Trigger' in col):
                 df_plot[col] = df_plot[col] * 3
-                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name='Trigger',opacity=0.8, yaxis='y1'))
+                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name=str(col),opacity=0.8, yaxis='y1'))
+            elif ('ANA_CURRENT' in col):
+                df_plot[col] = df_plot[col].apply(lambda x: (x - 1.65) /volt_amp_ratio)
+                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name=str(col),opacity=0.8, yaxis='y1'))
+            elif ('FLUKE_CURRENT' in col):
+                df_plot[col]  = (df_plot[col]-3.5) 
+                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name=str(col) ,opacity=0.8, yaxis='y1'))
+            elif ('V_Triac_DS' in col):
+                trace_buff.append(go.Scattergl(x=df_plot['TIME'],y=df_plot[col],mode='lines',name=str(col),opacity=0.8, yaxis='y2'))
             else:
                 pass 
 
     return trace_buff
 
-conn = sqlite3.connect("g3v2_motor_drive_signals_09-Feb-2021-10-30.db")
+conn = sqlite3.connect("usb/g3v2_motor_drive_signals_10-Feb-2021-11-48.db")
 t_query = "SELECT sql from sqlite_master where type = 'table'"
 df = pd.read_sql_query(t_query, conn)
 conn.close()
