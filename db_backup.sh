@@ -4,9 +4,9 @@
 myfilesize=$(wc -c "/home/pi/rigol_ethernet/g3v2_motor_drive_signals.db" | awk '{print $1}')
 echo "$myfilesize"
 
-if [ $myfilesize -gt 100000 ]
+if [ $myfilesize -gt 10000000 ]
 then
-	echo file over 100kB
+	echo file over 10MB
 	#turn off the cycle testing and wait 10 seconds to let all tests finish
 	t_running=`cat run_testing.txt`
 	echo "$t_running"

@@ -14,7 +14,7 @@ trig_chan = 'CHAN1'
 
 timebase_offset = 0.02
 timebase_scale = 0.01
-
+timebase_offset_inrush = 0.05
 
 chan1_label = 'Trigger'
 chan2_lbael = 'ANA_CURRENT'
@@ -42,7 +42,7 @@ def set_trig_inrush(t_scope):
     t_scope.write(':ACQ:TYPE HRES')
     print(str(t_scope.query(':ACQ:TYPE?')))
     #set time offset to 0ms
-    t_scope.timebase_offset = timebase_offset
+    t_scope.timebase_offset = timebase_offset_inrush
     t_scope.timebase_scale = timebase_scale
     
 def set_trig_stall(t_scope):
@@ -64,9 +64,9 @@ def get_data(t_scope):
     chan4_data = t_scope.get_waveform_samples('CHAN4')
     df.insert(1, chan4_label, chan4_data)
     chan3_data = t_scope.get_waveform_samples('CHAN3')
-    df.insert(1, chan3_label,, chan3_data)
+    df.insert(1, chan3_label, chan3_data)
     chan2_data = t_scope.get_waveform_samples('CHAN2')
-    df.insert(1, chan2_lbael chan2_data)
+    df.insert(1, chan2_lbael, chan2_data)
     chan1_data = t_scope.get_waveform_samples('CHAN1')
     df.insert(1, chan1_label, chan1_data)
 
